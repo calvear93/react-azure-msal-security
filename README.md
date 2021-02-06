@@ -1,7 +1,7 @@
 # React Azure MSAL Security
 ### Azure Active Directory security module using MSAL
 
-React library for application security (using MSAL) that eases application protection with Azure session JWT using MSAL library.
+React library for application security (using MSAL) that eases application protection with Azure session JWT.
 Exposes multiples hooks for login, logout and secure components.
 
 ## Structure 📋
@@ -80,7 +80,31 @@ export default () => {
 }
 ```
 
-For tenantId also see [MSAL CLient Config](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-application-configuration)
+For tenantId also see [MSAL Client Config](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-application-configuration)
+
+### Token acquisition and blank page/route
+
+For a correct authentication and token renewal operation you should define a blank page or route in your application.
+This route will be used as iframe for retrieve or renew the token on authentication.
+
+For example, if you're using [react-spa-routerizer](https://github.com/calvear93/react-spa-routerizer)
+
+```javascript
+// routes.js
+
+export default [
+    ...,
+    // blank html page for load authentication iframe to refresh the token,
+    // also, you should set tokenRefreshUri as '/auth' route.
+    {
+        key: 'auth-page',
+        title: 'Authenticating',
+        path: '/auth',
+        Child: () => null
+    },
+    ...
+];
+```
 
 ### Automatic Login
 
