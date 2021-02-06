@@ -56,7 +56,7 @@ This module, exposes many hooks for handle login, logout and secure React compon
 In your **App.jsx** or **App.router.jsx** you should initialize the authentication service.
 
 ```javascript
-import { AuthenticationService } from 'modules/security';
+import { AuthenticationService } from '@calvear/react-azure-msal-security';
 
 // initializes Microsoft Active Directory authentication service.
 AuthenticationService.init({
@@ -109,7 +109,7 @@ export default [
 ### Automatic Login
 
 ```javascript
-import { useAuthentication } from 'modules/security';
+import { useAuthentication } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
@@ -133,7 +133,7 @@ export default () => {
 
 ```javascript
 import { Redirect } from 'react-router-dom';
-import { useLogin } from 'modules/security';
+import { useLogin } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
@@ -159,7 +159,7 @@ export default () => {
 ### Logout
 
 ```javascript
-import { useLogout } from 'modules/security';
+import { useLogout } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
@@ -179,8 +179,8 @@ Both, automatic and manual login, has the possibility to add a condition after A
 The conditional validation should be an asynchronous function resolving a boolean.
 
 ```javascript
-import { UserApi } from 'services/api/user';
-import { useConditionalAuthentication } from 'modules/security';
+import { UserApi } from 'adapters/api/user';
+import { useConditionalAuthentication } from '@calvear/react-azure-msal-security';
 
 async function ValidateRegisteredUserInDb(aadService) => {
     // retrieves current logged user principal name (email).
@@ -219,7 +219,7 @@ You can acquire a JWT access token for API securing.
 
 ```javascript
 import { useState, useEffect } from 'react';
-import { useAcquireToken } from 'modules/security';
+import { useAcquireToken } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
@@ -244,7 +244,7 @@ export default () => {
 You can retrieves user account detailed info and profile avatar from Microsoft Graph api with hooks.
 
 ```javascript
-import { useAccountInfo } from 'modules/security';
+import { useAccountInfo } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
@@ -266,7 +266,7 @@ export default () => {
 ```
 
 ```javascript
-import { useAccountAvatar } from 'modules/security';
+import { useAccountAvatar } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
