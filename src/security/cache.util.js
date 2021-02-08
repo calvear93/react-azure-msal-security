@@ -50,7 +50,7 @@ export function read(key, storageType = types.CACHE.LOCAL_STORAGE)
  */
 function dateNextDays(days)
 {
-    var date = new Date();
+    const date = new Date();
 
     if (!days)
         return null;

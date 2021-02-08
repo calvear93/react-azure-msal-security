@@ -5,7 +5,7 @@
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2020-11-28 17:00:32
+ * Last modified  : 2021-02-08 19:20:14
  */
 
 import axios from 'axios';
@@ -60,7 +60,7 @@ export default {
     {
         return new Promise((resolve) =>
         {
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.readAsDataURL(response);
             reader.onloadend = () =>
             {
