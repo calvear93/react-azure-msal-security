@@ -260,6 +260,8 @@ export default () => {
 Both, automatic and manual login, has the possibility to add a condition after AAD authentication, for custom user or role validation.
 The conditional validation should be an asynchronous function resolving a boolean.
 
+⚠️ **warning**: only one conditional authentication function will be executed, in case of using multiple authentication hooks in your components. Always the higher component hook will execute conditional function.
+
 ```javascript
 import { UserApi } from 'adapters/api/user';
 import { useConditionalAuthentication } from '@calvear/react-azure-msal-security';
