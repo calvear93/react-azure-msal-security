@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2021-02-08
+-   Added forceTokenRefresh param in useAcquireToken hook (forces to renew token from active directory).
+
 ## [1.0.1] - 2021-02-07
 -   Readme docs updated.
 

@@ -185,11 +185,13 @@ export function useConditionalAuthentication(asyncCallback, options = {})
  *
  * @export
  *
+ * @param {boolean} [forceTokenRefresh] forces to renew token from active directory.
+ *
  * @returns {Function} acquireToken.
  */
-export function useAcquireToken()
+export function useAcquireToken(forceTokenRefresh = false)
 {
-    return () => AuthenticationService.acquireToken();
+    return () => AuthenticationService.acquireToken({ forceTokenRefresh });
 }
 
 /**

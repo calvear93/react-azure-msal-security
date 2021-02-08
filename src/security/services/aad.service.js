@@ -5,7 +5,7 @@
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2020-12-04 15:19:23
+ * Last modified  : 2021-02-08 14:11:20
  */
 
 import * as Msal from 'msal';
@@ -121,19 +121,23 @@ export default {
      *
      * @param {object} [config] options.
      * @param {Array} [config.scopes] array of scopes allowed.
+     * @param {boolean} [config.forceTokenRefresh] forces to renew token from active directory.
      *
      * @returns {Promise<any>} token container.
      */
-    acquireToken({ scopes = types.DEFAULT_SCOPES } = {})
+    acquireToken({ scopes = types.DEFAULT_SCOPES, forceTokenRefresh } = {})
     {
         return new Promise((resolve, reject) =>
         {
-            const cached = this.acquireTokenInCache(scopes);
+            // tries to get cached token.
+            if(!forceTokenRefresh){
+                const cached = this.acquireTokenInCache(scopes);
 
-            if (cached && cached.accessToken)
-                resolve(cached);
+                if (cached && cached.accessToken)
+                    resolve(cached);
+            }
 
-            this.acquireTokenSilent({ scopes })
+            this.acquireTokenSilent({ scopes, forceTokenRefresh })
                 .then((account) => resolve(account))
                 .catch((err) => reject(err));
         });

@@ -321,6 +321,10 @@ export default () => {
 | ----------------- | ------------------------------------------ |
 | `acquireToken`    | async function for acquire an access token |
 
+| Parameters            | Description                                                     |
+| --------------------- | --------------------------------------------------------------- |
+| `[forceTokenRefresh]` | (default: false) - forces to renew token from active directory. |
+
 ### ☑️ Graph Info
 
 You can retrieves user account detailed info and profile avatar from Microsoft Graph api with hooks.
