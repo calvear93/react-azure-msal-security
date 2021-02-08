@@ -139,6 +139,27 @@ export default [
 ];
 ```
 
+### ☑️ Check Authentication State
+
+```javascript
+import { useIsAuthenticated } from '@calvear/react-azure-msal-security';
+
+// react component
+export default () => {
+    const isAuthenticated = useIsAuthenticated();
+
+    return (
+        <div>
+            <h1>User is authenticated?: {isAuthenticated ? 'yeah' : 'no'}</h1>
+        </div>
+    );
+};
+```
+
+| Returning Modules | Description                                 |
+| ----------------- | ------------------------------------------- |
+| `isAuthenticated` | boolean indicating if user is authenticated |
+
 ### ☑️ Automatic Login
 
 ```javascript

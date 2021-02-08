@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "name": "@calvear/react-azure-msal-security",
   "title": "React Azure MSAL Security",
   "description": "React library (MSAL wrapper) for Azure Active Directory authentication.",

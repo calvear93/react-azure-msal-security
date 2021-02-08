@@ -4,6 +4,19 @@ import { cacheAsyncCallback } from './cache.util';
 import { AuthenticationService, GraphService } from './services';
 
 /**
+ * Returns whether user
+ * is authenticated.
+ *
+ * @export
+ *
+ * @returns {bool} whether user is authenticated.
+ */
+export function useIsAuthenticated()
+{
+    return AuthenticationService.isAuthenticated();
+}
+
+/**
  * Returns login function and
  * current authentication state.
  *
