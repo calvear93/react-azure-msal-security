@@ -382,9 +382,10 @@ export default () => {
 | `state.avatar`    | account avatar in base64 |
 | `state.error`     | error object             |
 
-| Parameters   | Description                                       |
-| ------------ | ------------------------------------------------- |
-| `[disabled]` | (default: false) if avatar retrieving is disabled |
+| Parameters   | Description                                                                                                               |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `[size]`     | (default: false) if avatar retrieving is disabled                                                                         |
+| `[disabled]` | (default: 648x648) avatar sizes. Values maybe 48x48, 64x64, 96x96, 120x120, 240x240, 360x360, 432x432, 504x504 or 648x648 |
 
 ## Linting 🧿
 
