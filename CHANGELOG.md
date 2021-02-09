@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2021-02-09
+-   useLogin authenticated from state fixed.
+
 ## [1.0.3] - 2021-02-08
 -   Added useIsAuthenticated hook for simple check authentication state.
 

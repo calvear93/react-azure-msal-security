@@ -39,7 +39,7 @@ export function useLogin(loginType = types.LOGIN_TYPE.REDIRECT)
         setDisabled(false);
     }
 
-    return [ login, state ];
+    return [ login, { ...state, authenticated: AuthenticationService.isAuthenticated() } ];
 }
 
 /**
@@ -68,7 +68,7 @@ export function useConditionalLogin(asyncCallback, loginType = types.LOGIN_TYPE.
         setDisabled(false);
     }
 
-    return [ login, state ];
+    return [ login, { ...state, authenticated: AuthenticationService.isAuthenticated() } ];
 }
 
 /**
