@@ -19,9 +19,11 @@
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "parserOptions": {
+        "allowImportExportEverywhere": false,
         "ecmaFeatures": {
+            "globalReturn": false,
             "jsx": true
         },
         "ecmaVersion": 11,
@@ -37,7 +39,10 @@
     ],
     "reportUnusedDisableDirectives": false,
     "rules": {
-        "array-bracket-spacing": ["warn", "always"],
+        "array-bracket-spacing": [
+            "warn",
+            "always"
+        ],
         "array-callback-return": "error",
         "arrow-spacing": "warn",
         "block-scoped-var": "warn",
@@ -50,7 +55,10 @@
             }
         ],
         "class-methods-use-this": "off",
-        "comma-dangle": ["warn", "never"],
+        "comma-dangle": [
+            "warn",
+            "never"
+        ],
         "comma-spacing": [
             "warn",
             {
@@ -58,13 +66,26 @@
                 "before": false
             }
         ],
-        "comma-style": ["warn", "last"],
-        "curly": ["warn", "multi-or-nest", "consistent"],
+        "comma-style": [
+            "warn",
+            "last"
+        ],
+        "curly": [
+            "warn",
+            "multi-or-nest",
+            "consistent"
+        ],
         "default-case": "warn",
-        "dot-location": ["warn", "property"],
+        "dot-location": [
+            "warn",
+            "property"
+        ],
         "dot-notation": "warn",
         "eqeqeq": "warn",
-        "func-call-spacing": ["warn", "never"],
+        "func-call-spacing": [
+            "warn",
+            "never"
+        ],
         "getter-return": [
             "error",
             {
@@ -105,7 +126,10 @@
         "jsdoc/require-property-description": "off",
         "jsdoc/require-returns-description": "off",
         "jsdoc/require-throws": "warn",
-        "jsx-quotes": ["warn", "prefer-single"],
+        "jsx-quotes": [
+            "warn",
+            "prefer-single"
+        ],
         "key-spacing": [
             "warn",
             {
@@ -129,7 +153,10 @@
                 "beforeLineComment": false
             }
         ],
-        "lines-between-class-members": ["warn", "always"],
+        "lines-between-class-members": [
+            "warn",
+            "always"
+        ],
         "no-console": "warn",
         "no-debugger": "warn",
         "no-duplicate-case": "error",
@@ -137,7 +164,10 @@
         "no-empty-pattern": "error",
         "no-eq-null": "warn",
         "no-extra-semi": "warn",
-        "no-mixed-spaces-and-tabs": ["warn", "smart-tabs"],
+        "no-mixed-spaces-and-tabs": [
+            "warn",
+            "smart-tabs"
+        ],
         "no-multi-spaces": "warn",
         "no-multiple-empty-lines": [
             "warn",
@@ -151,9 +181,15 @@
         "no-trailing-spaces": "warn",
         "no-unneeded-ternary": "warn",
         "no-unused-vars": "warn",
-        "object-curly-spacing": ["warn", "always"],
+        "object-curly-spacing": [
+            "warn",
+            "always"
+        ],
         "object-shorthand": "warn",
-        "padded-blocks": ["warn", "never"],
+        "padded-blocks": [
+            "warn",
+            "never"
+        ],
         "padding-line-between-statements": [
             "warn",
             {
@@ -173,20 +209,42 @@
             }
         ],
         "prefer-promise-reject-errors": "warn",
-        "quote-props": ["warn", "as-needed"],
-        "quotes": ["warn", "single", "avoid-escape"],
-        "radix": ["warn", "as-needed"],
+        "quote-props": [
+            "warn",
+            "as-needed"
+        ],
+        "quotes": [
+            "warn",
+            "single",
+            "avoid-escape"
+        ],
+        "radix": [
+            "warn",
+            "as-needed"
+        ],
         "react-hooks/exhaustive-deps": "off",
         "react-hooks/rules-of-hooks": "warn",
-        "react/destructuring-assignment": ["warn", "always"],
+        "react/destructuring-assignment": [
+            "warn",
+            "always"
+        ],
         "react/display-name": "off",
         "react/forbid-prop-types": "warn",
         "react/jsx-boolean-value": "warn",
         "react/jsx-child-element-spacing": "off",
-        "react/jsx-closing-bracket-location": ["warn", "tag-aligned"],
+        "react/jsx-closing-bracket-location": [
+            "warn",
+            "tag-aligned"
+        ],
         "react/jsx-closing-tag-location": "warn",
-        "react/jsx-curly-spacing": ["warn", "always"],
-        "react/jsx-fragments": ["warn", "syntax"],
+        "react/jsx-curly-spacing": [
+            "warn",
+            "always"
+        ],
+        "react/jsx-fragments": [
+            "warn",
+            "syntax"
+        ],
         "react/jsx-handler-names": "warn",
         "react/jsx-indent": [
             "warn",
@@ -196,7 +254,10 @@
                 "indentLogicalExpressions": true
             }
         ],
-        "react/jsx-indent-props": ["warn", 4],
+        "react/jsx-indent-props": [
+            "warn",
+            4
+        ],
         "react/jsx-key": [
             "error",
             {
@@ -238,7 +299,10 @@
         "react/no-unescaped-entities": [
             "warn",
             {
-                "forbid": [">", "}"]
+                "forbid": [
+                    ">",
+                    "}"
+                ]
             }
         ],
         "react/no-unknown-property": "warn",
@@ -249,15 +313,30 @@
         "react/self-closing-comp": "warn",
         "react/sort-comp": "warn",
         "react/sort-prop-types": "warn",
-        "semi": ["error", "always"],
+        "semi": [
+            "error",
+            "always"
+        ],
         "semi-spacing": "warn",
-        "semi-style": ["warn", "last"],
-        "sonarjs/cognitive-complexity": ["off", 20],
-        "sonarjs/max-switch-cases": ["off", 12],
+        "semi-style": [
+            "warn",
+            "last"
+        ],
+        "sonarjs/cognitive-complexity": [
+            "off",
+            20
+        ],
+        "sonarjs/max-switch-cases": [
+            "off",
+            12
+        ],
         "sonarjs/no-duplicate-string": "off",
         "sonarjs/no-small-switch": "warn",
         "sort-imports": "off",
-        "sort-keys": ["off", "asc"],
+        "sort-keys": [
+            "off",
+            "asc"
+        ],
         "space-before-blocks": "warn",
         "space-before-function-paren": [
             "error",
@@ -267,19 +346,31 @@
                 "named": "never"
             }
         ],
-        "space-in-parens": ["warn", "never"],
+        "space-in-parens": [
+            "warn",
+            "never"
+        ],
         "spaced-comment": [
             "warn",
             "always",
             {
                 "block": {
                     "balanced": true,
-                    "exceptions": ["*"],
-                    "markers": ["!"]
+                    "exceptions": [
+                        "*"
+                    ],
+                    "markers": [
+                        "!"
+                    ]
                 },
                 "line": {
-                    "exceptions": ["-", "+"],
-                    "markers": ["/"]
+                    "exceptions": [
+                        "-",
+                        "+"
+                    ],
+                    "markers": [
+                        "/"
+                    ]
                 }
             }
         ],

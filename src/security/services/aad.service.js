@@ -5,7 +5,7 @@
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2021-02-08 14:11:20
+ * Last modified  : 2021-02-09 16:07:04
  */
 
 import * as Msal from 'msal';
@@ -130,7 +130,8 @@ export default {
         return new Promise((resolve, reject) =>
         {
             // tries to get cached token.
-            if(!forceTokenRefresh){
+            if (!forceTokenRefresh)
+            {
                 const cached = this.acquireTokenInCache(scopes);
 
                 if (cached && cached.accessToken)
