@@ -5,7 +5,7 @@
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2021-02-09 16:07:04
+ * Last modified  : 2021-02-09 16:57:41
  */
 
 import * as Msal from 'msal';
@@ -24,6 +24,9 @@ export default {
 
     // stores authentication process promise.
     AuthenticatingPromise: null,
+
+    // last error on auth or token renewal
+    Error: null,
 
     /**
      * Initializes MSAL authentication context.
@@ -141,7 +144,8 @@ export default {
             this.acquireTokenSilent({ scopes, forceTokenRefresh })
                 .then((account) => resolve(account))
                 .catch((err) => reject(err));
-        });
+        })
+            .catch((error) => this.Error = error);
     },
 
     /**
@@ -171,7 +175,8 @@ export default {
                         .then((account) => resolve(account))
                         .catch((err) => reject(err));
                 });
-        });
+        })
+            .catch((error) => this.Error = error);
     },
 
     /**
@@ -230,7 +235,8 @@ export default {
                         ?.then(() => resolve(this.Context.getAccount()))
                         ?.catch((error) => reject(error));
                 });
-        }));
+        }))
+            .catch((error) => this.Error = error);
     },
 
     /**
@@ -241,6 +247,16 @@ export default {
     isAuthenticated()
     {
         return this.Disabled || !!this.Context.getAccount();
+    },
+
+    /**
+     * Whether authentication is in progress.
+     *
+     * @returns {boolean} true if login is in progress, false in otherwise.
+     */
+    isLoginInProgress()
+    {
+        return this.Disabled || !!this.Context.getLoginInProgress();
     },
 
     /**
@@ -257,6 +273,19 @@ export default {
     clearCache()
     {
         this.Disabled || this.Context.clearCache();
+    },
+
+    /**
+     * Returns current authority data.
+     *
+     * @returns {any} authority data.
+     */
+    getAuthority()
+    {
+        if (this.Disabled)
+            return null;
+
+        return this.Context.getAuthorityInstance();
     },
 
     /**
