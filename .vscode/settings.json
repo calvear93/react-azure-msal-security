@@ -101,6 +101,8 @@
 		"setupTests.js": "jest"
 	},
 	"material-icon-theme.folders.associations": {
+		"adapters": "api",
+		"context": "global",
 		"masks": "middleware",
 		"modules": "middleware",
 		"normalizers": "lib",
