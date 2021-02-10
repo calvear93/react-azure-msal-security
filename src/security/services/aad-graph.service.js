@@ -5,7 +5,7 @@
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2021-02-08 19:20:14
+ * Last modified  : 2021-02-10 13:30:34
  */
 
 import axios from 'axios';
@@ -13,7 +13,7 @@ import { types } from '../config';
 import AuthenticationService from './aad.service';
 
 // Graph API helper.
-export default {
+const GraphService = {
     // Graph API base URL.
     URL: `${types.RESOURCES.MICROSOFT_GRAPH}v1.0/`,
 
@@ -36,7 +36,7 @@ export default {
                     // builds request config.
                     options = {
                         ...options,
-                        url: `${this.URL}${options.api}`,
+                        url: `${GraphService.URL}${options.api}`,
                         headers: { Authorization: `Bearer ${token}` }
                     };
                     // Executes the request.
@@ -46,6 +46,20 @@ export default {
                 })
                 .catch(reject);
         });
+    },
+
+    /**
+     * Create a blob from a
+     * binary array buffer.
+     *
+     * @param {Uint8Array} buffer binary array buffer.
+     * @param {string} type content type.
+     *
+     * @returns {Blob} data blob.
+     */
+    bufferToBlob(buffer, type)
+    {
+        return new Blob([ new Uint8Array(buffer, 0, buffer.length) ], { type });
     },
 
     /**
@@ -76,7 +90,7 @@ export default {
      */
     me()
     {
-        return this.graphRequest({ api: 'me', params: { $select: types.ATTRIBUTES.join(',') } });
+        return GraphService.graphRequest({ api: 'me', params: { $select: types.ATTRIBUTES.join(',') } });
     },
 
     /**
@@ -88,8 +102,8 @@ export default {
     {
         return new Promise((resolve, reject) =>
         {
-            this.graphRequest({ api: 'me/photo/$value', responseType: 'blob' })
-                .then((response) => resolve(this.readBlob(response)))
+            GraphService.graphRequest({ api: 'me/photo/$value', responseType: 'arraybuffer' })
+                .then((response) => resolve(GraphService.readBlob(GraphService.bufferToBlob(response, 'image/jpeg'))))
                 .catch((error) => reject(error));
         });
     },
@@ -108,9 +122,11 @@ export default {
     {
         return new Promise((resolve, reject) =>
         {
-            this.graphRequest({ api: `me/photos/${size}/$value`, responseType: 'blob' })
-                .then((response) => resolve(this.readBlob(response)))
+            GraphService.graphRequest({ api: `me/photos/${size}/$value`, responseType: 'arraybuffer' })
+                .then((response) => resolve(GraphService.readBlob(GraphService.bufferToBlob(response, 'image/jpeg'))))
                 .catch((error) => reject(error));
         });
     }
 };
+
+export default GraphService;

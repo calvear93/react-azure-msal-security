@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2021-02-10
+-   Fixed blob handling for avatar in some scenarios.
+
 ## [2.0.0] - 2021-02-09
 -   State handle reworked. Now, service has a centralized observer handling state changes.
 -   Added useAuthenticationState that handles in real-time session changes.
