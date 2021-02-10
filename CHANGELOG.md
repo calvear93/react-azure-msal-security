@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2021-02-09
+-   State handle reworked. Now, service has a centralized observer handling state changes.
+-   Added useAuthenticationState that handles in real-time session changes.
+-   Removed conditional authentication hooks. You can use useEffect for postLogin validations.
+-   Simplified init function.
+
 ## [1.0.4] - 2021-02-09
 -   useLogin authenticated from state fixed.
 

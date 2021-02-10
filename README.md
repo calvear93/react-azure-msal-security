@@ -21,7 +21,8 @@ Exposes multiples hooks for login, logout and secure components.
 │   │   │   ├── aad-graph.service.js # basic graph service for user info and avatar
 │   │   │   └── aad.service.js # service for handle login, sso and token acquisition
 │   │   ├── auth.hook.js # module hooks
-│   │   └── cache.util.js # util for persist graph info
+│   │   ├── cache.util.js # util for persist graph info
+│   │   └── observer.util.js # observer pattern handler
 │   └── index.js
 ├── package.json
 ├── jsconfig.js
@@ -41,11 +42,11 @@ Exposes multiples hooks for login, logout and secure components.
 
 ## Features 🎉
 
-✅ Automatic and manual login/logout hooks.
+✅ Centralized and synchronized session state handling for any authentication event.
 
-✅ Conditional login, accepting a custom function that will be executed after MSAL authentication success.
+✅ Automatic and manual login hooks.
 
-✅ Token acquisition hook.
+✅ Logout,state and token acquisition hooks.
 
 ✅ Refresh token route handler.
 
@@ -77,9 +78,8 @@ In your **App.jsx** or **App.router.jsx** you should initialize the authenticati
 ```javascript
 import { AuthenticationService } from '@calvear/react-azure-msal-security';
 
-// initializes Microsoft Active Directory authentication service.
-AuthenticationService.init({
-    disabled: false,
+// MSAL config.
+const authConfig = {
     clientId: '2a85c521-02fc-4796-8ecc-eaa13eee2e7b', // registered app id from azure
     tenantId: 'ba3947ca-abb7-402e-b1d1-c9284608f497', // maybe common, organizations or consumers also
     loginActionRedirect: '/',
@@ -87,7 +87,10 @@ AuthenticationService.init({
     tokenRefreshUri: '/auth', // should exists a blank route in your app
     tokenRenewalOffset: 120,
     navigateToRequestAfterLogin: true,
-});
+};
+
+// initializes Microsoft Active Directory authentication service.
+AuthenticationService.init(authConfig);
 
 // main react component
 export default () => {
@@ -102,7 +105,6 @@ export default () => {
 | Parameters                             | Description                                                     |
 | -------------------------------------- | --------------------------------------------------------------- |
 | `[config]`                             | settings                                                        |
-| `[config.disabled]`                    | (default: false) - if authentication is disabled globally       |
 | `[config.tenantId]`                    | organization Azure client id                                    |
 | `[config.clientId]`                    | application Azure client id                                     |
 | `[config.loginActionRedirect]`         | (default: '/') - redirect path after login                      |
@@ -112,6 +114,7 @@ export default () => {
 | `[config.navigateToRequestAfterLogin]` | (default: true) - if app redirects to previous path after login |
 | `[config.infoCacheDurationInDays]`     | (default: 1) - days for store user info cached                  |
 | `[config.photoCacheDurationInDays]`    | (default: 3) - days for store user photo cached                 |
+| `[disabled]`                           | (default: false) - if authentication is disabled globally       |
 
 For tenantId also see [MSAL Client Config](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-application-configuration)
 
@@ -142,23 +145,26 @@ export default [
 ### ☑️ Check Authentication State
 
 ```javascript
-import { useIsAuthenticated } from '@calvear/react-azure-msal-security';
+import { useAuthenticationState } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
-    const isAuthenticated = useIsAuthenticated();
+    const { authenticated, authenticating, error } = useAuthenticationState();
 
     return (
         <div>
-            <h1>User is authenticated?: {isAuthenticated ? 'yeah' : 'no'}</h1>
+            <h1>User is authenticated?: {authenticated ? 'yeah' : 'no'}</h1>
         </div>
     );
 };
 ```
 
-| Returning Modules | Description                                 |
-| ----------------- | ------------------------------------------- |
-| `isAuthenticated` | boolean indicating if user is authenticated |
+| Returning Modules      | Description                      |
+| ---------------------- | -------------------------------- |
+| `state`                | object with authentication state |
+| `state.authenticated`  | if user is authenticated         |
+| `state.authenticating` | if service is authenticating     |
+| `state.error`          | error object                     |
 
 ### ☑️ Automatic Login
 
@@ -191,18 +197,18 @@ export default () => {
 | Parameters           | Description                                            |
 | -------------------- | ------------------------------------------------------ |
 | `[config]`           | settings                                               |
-| `[config.disabled]`  | (default: false) - if hook is disabled                 |
 | `[config.loginType]` | (default: loginRedirect) - loginRedirect or loginPopup |
 
 ### ☑️ Manual Login
 
 ```javascript
 import { Redirect } from 'react-router-dom';
-import { useLogin } from '@calvear/react-azure-msal-security';
+import { useAuthenticationState, useLogin } from '@calvear/react-azure-msal-security';
 
 // react component
 export default () => {
-    const [ login, { authenticated, authenticating, error }] = useLogin();
+    const login = useLogin();
+    const { authenticated, authenticating, error } = useAuthenticationState();
 
     if(authenticating)
         return <div>Authenticating...</div>;
@@ -221,14 +227,9 @@ export default () => {
 }
 ```
 
-| Returning Modules           | Description                                       |
-| --------------------------- | ------------------------------------------------- |
-| `modules`                   | array of hook modules                             |
-| `modules[0]`                | (login) function for trigger login/authentication |
-| `modules[1]`                | authentication state                              |
-| `modules[1].authenticated`  | if user is authenticated                          |
-| `modules[1].authenticating` | if service is authentication                      |
-| `modules[1].error`          | error object                                      |
+| Returning Modules | Description                                       |
+| ----------------- | ------------------------------------------------- |
+| `login`           | (login) function for trigger login/authentication |
 
 | Parameters    | Description                                          |
 | ------------- | ---------------------------------------------------- |
@@ -254,62 +255,6 @@ export default () => {
 | Returning Modules | Description         |
 | ----------------- | ------------------- |
 | `logout`          | function for logout |
-
-### ☑️ Conditional Login
-
-Both, automatic and manual login, has the possibility to add a condition after AAD authentication, for custom user or role validation.
-The conditional validation should be an asynchronous function resolving a boolean.
-
-⚠️ **warning**: only one conditional authentication function will be executed, in case of using multiple authentication hooks in your components. Always the higher component hook will execute conditional function.
-
-```javascript
-import { UserApi } from 'adapters/api/user';
-import { useConditionalAuthentication } from '@calvear/react-azure-msal-security';
-
-async function ValidateRegisteredUserInDb(aadService) => {
-    // retrieves current logged user principal name (email).
-    const upn = aadService.getUserName();
-    // validates with custom service user existence.
-    const isValid = await UserApi.validate(upn);
-
-    return isValid;
-}
-
-// react component
-export default () => {
-    const {
-        authenticated,
-        authenticating,
-        error
-    } = useConditionalAuthentication(ValidateRegisteredUserInDb);
-
-    if(authenticating)
-        return <div>Authenticating...</div>;
-
-    if(!authenticated)
-        return <div>403: Not Authorized - {error.message}</div>;
-
-    return (
-        <div>
-            <h1>Welcome to My App</h1>
-        </div>
-    );
-}
-```
-
-| Returning Modules      | Description                      |
-| ---------------------- | -------------------------------- |
-| `state`                | object with authentication state |
-| `state.authenticated`  | if user is authenticated         |
-| `state.authenticating` | if service is authenticating     |
-| `state.error`          | error object                     |
-
-| Parameters           | Description                                            |
-| -------------------- | ------------------------------------------------------ |
-| `asyncCallback`      | post MSAL authentication identity validation           |
-| `[config]`           | settings                                               |
-| `[config.disabled]`  | (default: false) - if hook is disabled                 |
-| `[config.loginType]` | (default: loginRedirect) - loginRedirect or loginPopup |
 
 ### ☑️ Acquire Token
 

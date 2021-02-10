@@ -4,16 +4,25 @@ import { cacheAsyncCallback } from './cache.util';
 import { AuthenticationService, GraphService } from './services';
 
 /**
- * Returns whether user
- * is authenticated.
+ * Returns session state.
  *
  * @export
  *
- * @returns {bool} whether user is authenticated.
+ * @returns {object} session state
+ *  (authenticated, authenticating and error).
  */
-export function useIsAuthenticated()
+export function useAuthenticationState()
 {
-    return AuthenticationService.isAuthenticated();
+    const [ state, setState ] = useState(AuthenticationService.state);
+
+    useEffect(() =>
+    {
+        const id = AuthenticationService.observer.subscribe((newState) => setState(newState));
+
+        return () => AuthenticationService.observer.unsubscribe(id);
+    }, [ ]);
+
+    return state;
 }
 
 /**
@@ -31,44 +40,7 @@ export function useIsAuthenticated()
  */
 export function useLogin(loginType = types.LOGIN_TYPE.REDIRECT)
 {
-    const [ disabled, setDisabled ] = useState(!AuthenticationService.isAuthenticated());
-    const state = useAuthentication({ disabled, loginType });
-
-    function login()
-    {
-        setDisabled(false);
-    }
-
-    return [ login, { ...state, authenticated: AuthenticationService.isAuthenticated() } ];
-}
-
-/**
- * Returns login function and
- * current authentication state
- * using an async callback for
- * post AD auth validation.
- *
- * @export
- *
- * @param {Promise<boolean>} asyncCallback a promise callback.
- * @param {string} [loginType] login type (redirect or popup).
- *  Avoid using POPUP type on programatic/automatic login, should be used
- *  on user interaction (i.e. button push, page navigation triggered by user, etc.)
- *
- * @returns {Array<any>} login function and auth state
- *  (authenticated, authenticating and error).
- */
-export function useConditionalLogin(asyncCallback, loginType = types.LOGIN_TYPE.REDIRECT)
-{
-    const [ disabled, setDisabled ] = useState(!AuthenticationService.isAuthenticated());
-    const state = useConditionalAuthentication(asyncCallback, { disabled, loginType });
-
-    function login()
-    {
-        setDisabled(false);
-    }
-
-    return [ login, { ...state, authenticated: AuthenticationService.isAuthenticated() } ];
+    return () => AuthenticationService.login({ type: loginType });
 }
 
 /**
@@ -99,7 +71,6 @@ export function useLogout()
  * @export
  *
  * @param {boolean} [options] whether authentication is disabled.
- * @param {boolean} [options.disabled] whether authentication is disabled.
  * @param {string} [options.loginType] login type (redirect or popup).
  *  Avoid using POPUP type on programatic/automatic login, should be used
  *  on user interaction (i.e. button push, page navigation triggered by user, etc.)
@@ -107,88 +78,17 @@ export function useLogout()
  * @returns {object} authenticating (bool),
  *  authenticated (bool) and error (Error) data.
  */
-export function useAuthentication({ disabled = false, loginType = types.LOGIN_TYPE.REDIRECT } = {})
+export function useAuthentication({ loginType = types.LOGIN_TYPE.REDIRECT } = {})
 {
-    const [ authenticated, setAuthenticated ] = useState(AuthenticationService.isAuthenticated() || disabled);
-    const [ authenticating, setAuthenticating ] = useState(!authenticated);
-    const [ error, setError ] = useState();
+    const { authenticating, authenticated, error } = useAuthenticationState();
 
     useEffect(() =>
     {
         if (!authenticated && !error)
-        {
-            AuthenticationService.login({ type: loginType })
-                .then(() => setAuthenticated(true))
-                .catch((error) =>
-                {
-                    setAuthenticated(false);
-                    setError(error);
-                })
-                .finally(() => setAuthenticating(false));
-        }
+            AuthenticationService.login({ type: loginType });
     }, [ authenticated ]);
 
-    useEffect(() =>
-    {
-        const isAuthenticated = AuthenticationService.isAuthenticated() || disabled;
-
-        setAuthenticated(isAuthenticated);
-        setAuthenticating(!isAuthenticated);
-    }, [ disabled ]);
-
     return { authenticating, authenticated, error };
-}
-
-/**
- * Executes Active Directory
- * automatic account validation
- * and a condition post condition.
- *
- * @export
- *
- * @param {Promise<boolean>} asyncCallback a promise callback.
- *  Returns true if authentication is done, false in otherwise.
- * @param {boolean} [options] whether authentication is disabled.
- * @param {boolean} [options.disabled] whether authentication is disabled.
- * @param {string} [options.loginType] login type (redirect or popup).
- * Avoid using POPUP type on programatic/automatic login, should be used
- * on user interaction (i.e. button push, page navigation triggered by user, etc.)
- *
- * @returns {object} authenticating (bool),
- * authenticated (bool) and error (Error) data.
- */
-export function useConditionalAuthentication(asyncCallback, options = {})
-{
-    const { disabled } = options;
-
-    const {
-        authenticated: baseAuthenticated,
-        authenticating: baseAuthenticating,
-        error: baseError
-    } = useAuthentication(options);
-
-    const [ authenticated, setAuthenticated ] = useState(!disabled);
-    const [ authenticating, setAuthenticating ] = useState(!disabled);
-    const [ error, setError ] = useState();
-
-    useEffect(() =>
-    {
-        if (!disabled && !baseAuthenticating && baseAuthenticated && AuthenticationService.isAuthenticated())
-        {
-            setAuthenticating(true);
-
-            asyncCallback(AuthenticationService)
-                .then((valid) => setAuthenticated(valid))
-                .catch((error) =>
-                {
-                    setAuthenticated(false);
-                    setError(error);
-                })
-                .finally(() => setAuthenticating(false));
-        }
-    }, [ authenticated, baseAuthenticated, baseAuthenticating, disabled ]);
-
-    return { authenticating: authenticating || baseAuthenticating, authenticated, error: error || baseError };
 }
 
 /**
@@ -213,22 +113,22 @@ export function useAcquireToken(forceTokenRefresh = false)
  *
  * @export
  *
- * @param {boolean} [disabled] whether authentication is disabled.
-
  * @returns {object} loading, error and info properties.
  */
-export function useAccountInfo(disabled = false)
+export function useAccountInfo()
 {
-    const { authenticated } = useAuthentication();
+    const { authenticated } = useAuthenticationState();
+    const canExec = !AuthenticationService.isDisabled() && authenticated;
+
     const [ info, setInfo ] = useState();
     const [ error, setError ] = useState();
-    const [ loading, setLoading ] = useState(!disabled && authenticated);
+    const [ loading, setLoading ] = useState(canExec);
 
     useEffect(() =>
     {
-        if (!disabled && authenticated)
+        if (canExec)
         {
-            const { cacheLocation, infoCacheDurationInDays } = AuthenticationService.BaseConfig.cache;
+            const { cacheLocation, infoCacheDurationInDays } = AuthenticationService.baseConfig.cache;
 
             cacheAsyncCallback(
                 `msal.${AuthenticationService.getId()}.info`,
@@ -242,7 +142,7 @@ export function useAccountInfo(disabled = false)
                 .catch((error) => setError(error))
                 .finally(() => setLoading(false));
         }
-    }, [ authenticated, disabled ]);
+    }, [ authenticated ]);
 
     return { loading, info, error };
 }
@@ -254,22 +154,23 @@ export function useAccountInfo(disabled = false)
  * @export
  *
  * @param {string} [size] photo size.
- * @param {boolean} [disabled] whether authentication is disabled.
 
  * @returns {object} loading, error and photo (base64) properties.
  */
-export function useAccountAvatar(size = '648x648', disabled = false)
+export function useAccountAvatar(size = '648x648')
 {
-    const { authenticated } = useAuthentication();
+    const { authenticated } = useAuthenticationState();
+    const canExec = !AuthenticationService.isDisabled() && authenticated;
+
     const [ avatar, setAvatar ] = useState();
     const [ error, setError ] = useState();
-    const [ loading, setLoading ] = useState(!disabled && authenticated);
+    const [ loading, setLoading ] = useState(canExec);
 
     useEffect(() =>
     {
-        if (!disabled && authenticated)
+        if (canExec)
         {
-            const { cacheLocation, photoCacheDurationInDays } = AuthenticationService.BaseConfig.cache;
+            const { cacheLocation, photoCacheDurationInDays } = AuthenticationService.baseConfig.cache;
 
             cacheAsyncCallback(
                 `msal.${AuthenticationService.getId()}.avatar${size}`,
@@ -283,7 +184,7 @@ export function useAccountAvatar(size = '648x648', disabled = false)
                 .catch((error) => setError(error))
                 .finally(() => setLoading(false));
         }
-    }, [ authenticated, disabled ]);
+    }, [ authenticated ]);
 
     return { loading, avatar, error };
 }

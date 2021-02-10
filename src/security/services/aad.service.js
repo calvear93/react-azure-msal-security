@@ -1,32 +1,38 @@
 /**
  * MSAL Microsoft Authentication service.
  *
- * @summary MSAL service.
+ * @summary MSAL service wrapper.
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2021-02-09 16:57:41
+ * Last modified  : 2021-02-09 22:21:38
  */
 
 import * as Msal from 'msal';
 import { createConfig, types } from '../config';
+import Observer from '../observer.util';
 
-export default {
+const AuthenticationService = {
 
-    // MSAL base config.
-    BaseConfig: null,
+    // MSAL base config
+    baseConfig: null,
 
-    // authentication context.
-    Context: null,
+    // MSAL authentication context
+    context: null,
 
-    // saves current token acquisition request.
-    AcquireTokenPromise: null,
+    // handles hook listeners for state changes
+    observer: new Observer(),
 
-    // stores authentication process promise.
-    AuthenticatingPromise: null,
+    // stores session state, authenticated, authenticating and error
+    state: {},
 
-    // last error on auth or token renewal
-    Error: null,
+    // stores current token acquisition
+    // request for singleton behaviour
+    acquireTokenPromise: null,
+
+    // stores authentication process
+    // request for singleton behaviour
+    authenticatingPromise: null,
 
     /**
      * Initializes MSAL authentication context.
@@ -34,29 +40,69 @@ export default {
      * All config properties accepts
      * environment variables values.
      *
-     * @param {object} args MSAL auth config.
-     * @param {object} args.disabled whether authentication is disabled globally.
-     * @param {object} args.config MSAL auth config.
-     * @param {string} args.config.tenantId organization Azure Object Id.
-     * @param {string} args.config.clientId application Azure Object Id.
-     * @param {string} args.config.loginActionRedirect redirect path after login.
+     * @param {object} config MSAL auth config.
+     * @param {string} config.tenantId organization Azure Object Id.
+     * @param {string} config.clientId application Azure Object Id.
+     * @param {string} config.loginActionRedirect redirect path after login.
      *  If navigateToRequestAfterLogin is false.
-     * @param {string} args.config.logoutActionRedirect redirect path after logout.
-     * @param {string} args.config.tokenRefreshUri path for renew auth token.
+     * @param {string} config.logoutActionRedirect redirect path after logout.
+     * @param {string} config.tokenRefreshUri path for renew auth token.
      *  Should be a empty page (null React component) and should be added to
      *  authentication routes in Azure App Registration.
-     * @param {number} args.config.tokenRenewalOffset token renewal interval.
-     * @param {string} args.config.navigateToRequestAfterLogin whether app redirects to previous path after login.
+     * @param {number} config.tokenRenewalOffset token renewal interval.
+     * @param {string} config.navigateToRequestAfterLogin whether app redirects to previous path after login.
+     * @param {boolean} [disabled] whether authentication is disabled globally.
      */
-    init({ disabled = false, ...config })
+    init(config, disabled)
     {
-        this.Disabled = disabled;
+        AuthenticationService.disabled = disabled;
 
-        if (!disabled)
+        if (disabled)
         {
-            this.BaseConfig = createConfig(config);
-            this.Context = new Msal.UserAgentApplication(this.BaseConfig);
+            AuthenticationService.context = null;
         }
+        else
+        {
+            AuthenticationService.baseConfig = createConfig(config);
+            AuthenticationService.context = new Msal.UserAgentApplication(AuthenticationService.baseConfig);
+        }
+
+        // initializes session state
+        AuthenticationService.setState({
+            authenticated: disabled || !!AuthenticationService.context.getAccount(),
+            authenticating: !disabled && AuthenticationService.context.getLoginInProgress()
+        });
+    },
+
+    /**
+     * Performs an state updating,
+     * triggering the observer if
+     * any change is detected.
+     *
+     * @param {object} changes partial session state.
+     * @param {object} changes.authenticated whether user is authenticated
+     * @param {object} changes.authenticating wheter authentication is in process
+     * @param {string} changes.error wheter exists any error on authentication
+     *
+     * @returns {object} session state.
+     */
+    setState: (changes) =>
+    {
+        let newState = { ...AuthenticationService.state, ...changes };
+
+        // validates internal changes
+        for (let key of Object.keys(newState))
+        {
+            if (AuthenticationService.state[key] !== newState[key])
+            {
+                AuthenticationService.state = newState;
+                AuthenticationService.observer.trigger(AuthenticationService.state);
+
+                return AuthenticationService.state;
+            }
+        }
+
+        return AuthenticationService.state;
     },
 
     /**
@@ -71,12 +117,12 @@ export default {
      */
     acquireTokenInCache({ scopes = types.DEFAULT_SCOPES } = {})
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
         try
         {
-            return this.Context.getCachedTokenInternal(scopes, this.Context.getAccount());
+            return AuthenticationService.context.getCachedTokenInternal(scopes, AuthenticationService.context.getAccount());
         }
         catch (error)
         {
@@ -100,22 +146,22 @@ export default {
      */
     acquireTokenSilent({ scopes = types.DEFAULT_SCOPES, loginHint, forceTokenRefresh } = {})
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
-        if (this.AcquireTokenPromise && this.Context.getAcquireTokenInProgress())
-            return this.AcquireTokenPromise;
+        if (AuthenticationService.acquireTokenPromise && AuthenticationService.context.getAcquireTokenInProgress())
+            return AuthenticationService.acquireTokenPromise;
 
-        this.Context.setAcquireTokenInProgress(true);
+        AuthenticationService.context.setAcquireTokenInProgress(true);
         // sets token refresh uri as redirect uri for iframe load.
-        this.Context.config.auth.redirectUri = this.BaseConfig.auth.tokenRefreshUri;
+        AuthenticationService.context.config.auth.redirectUri = AuthenticationService.baseConfig.auth.tokenRefreshUri;
 
-        return (this.AcquireTokenPromise = this.Context.acquireTokenSilent({
+        return (AuthenticationService.acquireTokenPromise = AuthenticationService.context.acquireTokenSilent({
             scopes,
-            loginHint: loginHint ?? this.getUserName(),
+            loginHint: loginHint ?? AuthenticationService.getUserName(),
             forceRefresh: forceTokenRefresh
         }))
-            .finally(() => this.Context.setAcquireTokenInProgress(false));
+            .finally(() => AuthenticationService.context.setAcquireTokenInProgress(false));
     },
 
     /**
@@ -135,17 +181,17 @@ export default {
             // tries to get cached token.
             if (!forceTokenRefresh)
             {
-                const cached = this.acquireTokenInCache(scopes);
+                const cached = AuthenticationService.acquireTokenInCache(scopes);
 
                 if (cached && cached.accessToken)
                     resolve(cached);
             }
 
-            this.acquireTokenSilent({ scopes, forceTokenRefresh })
+            AuthenticationService.acquireTokenSilent({ scopes, forceTokenRefresh })
                 .then((account) => resolve(account))
                 .catch((err) => reject(err));
         })
-            .catch((error) => this.Error = error);
+            .catch((error) => AuthenticationService.Error = error);
     },
 
     /**
@@ -155,28 +201,29 @@ export default {
      * @param {Array} [config.scopes] array of scopes allowed.
      * @param {string} [config.loginHint] preset account email.
      *
-     * @returns {boolean} account data if is authenticated, error on failure.
+     * @returns {object} authentication state.
      */
     sso({
         scopes = types.DEFAULT_SCOPES,
         loginHint
     } = {})
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
+
+        AuthenticationService.setState({ authenticating: true });
 
         return new Promise((resolve, reject) =>
         {
-            this.Context.ssoSilent({ loginHint, scopes })
-                .then((account) => resolve(account))
+            AuthenticationService.context.ssoSilent({ loginHint, scopes })
+                .then(() => resolve(AuthenticationService.setState({ authenticating: false, authenticated: true })))
                 .catch(() =>
                 {
-                    this.login({ loginHint, scopes, forceTokenRefresh: true })
-                        .then((account) => resolve(account))
-                        .catch((err) => reject(err));
+                    AuthenticationService.login({ loginHint, scopes, forceTokenRefresh: true })
+                        .then(() => resolve(AuthenticationService.setState({ authenticating: false, authenticated: true })))
+                        .catch((error) => reject(AuthenticationService.setState({ authenticating: false, error })));
                 });
-        })
-            .catch((error) => this.Error = error);
+        });
     },
 
     /**
@@ -191,7 +238,7 @@ export default {
      * @param {string} [config.loginHint] preset account email.
      * @param {boolean} [config.forceTokenRefresh] forces to renew token on authentication.
      *
-     * @returns {boolean} account data if is authenticated, error on failure.
+     * @returns {object} authentication state.
      */
     login({
         type = types.LOGIN_TYPE.REDIRECT,
@@ -200,43 +247,54 @@ export default {
         forceTokenRefresh = false
     } = {})
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
         // prevents multiple authentication processes.
-        if (this.AuthenticatingPromise)
-            return this.AuthenticatingPromise;
+        if (AuthenticationService.AuthenticatingPromise)
+            return AuthenticationService.AuthenticatingPromise;
 
-        return (this.AuthenticatingPromise = new Promise((resolve, reject) =>
+        return (AuthenticationService.AuthenticatingPromise = new Promise((resolve, reject) =>
         {
-            if (this.Context.getAccount())
-                return resolve(this.Context.getAccount());
+            if (AuthenticationService.isAuthenticated())
+                return resolve(AuthenticationService.state);
 
-            this.Context.acquireTokenSilent({ scopes })
-                .then(() => resolve(this.Context.getAccount()))
+            AuthenticationService.setState({ authenticating: true });
+
+            AuthenticationService.context.acquireTokenSilent({ scopes })
+                .then(() => resolve(AuthenticationService.setState({ authenticating: false, authenticated: true })))
                 .catch(() =>
                 {
                     // authentication process callback.
-                    this.Context.handleRedirectCallback((error, response) =>
+                    AuthenticationService.context.handleRedirectCallback((error, response) =>
                     {
                         if (response)
-                            resolve(this.Context.getAccount());
+                            resolve(AuthenticationService.setState({ authenticating: false, authenticated: true }));
                         else
-                            reject(error);
+                            reject(AuthenticationService.setState({ authenticating: false, error }));
                     });
 
                     // redirect method login.
-                    return this.Context[type]({
+                    return AuthenticationService.context[type]({
                         scopes,
                         loginHint,
                         forceRefresh: forceTokenRefresh
                     })
                         // in popup case. Avoid to use on automatic login.
-                        ?.then(() => resolve(this.Context.getAccount()))
-                        ?.catch((error) => reject(error));
+                        ?.then(() => resolve(AuthenticationService.setState({ authenticating: false, authenticated: true })))
+                        ?.catch((error) => reject(AuthenticationService.setState({ authenticating: false, error })));
                 });
-        }))
-            .catch((error) => this.Error = error);
+        }));
+    },
+
+    /**
+     * Whether authentication is disabled.
+     *
+     * @returns {boolean} true if disabled, false in otherwise.
+     */
+    isDisabled()
+    {
+        return AuthenticationService.disabled;
     },
 
     /**
@@ -246,7 +304,7 @@ export default {
      */
     isAuthenticated()
     {
-        return this.Disabled || !!this.Context.getAccount();
+        return AuthenticationService.disabled || !!AuthenticationService.context.getAccount();
     },
 
     /**
@@ -254,9 +312,11 @@ export default {
      *
      * @returns {boolean} true if login is in progress, false in otherwise.
      */
-    isLoginInProgress()
+    isAuthenticating()
     {
-        return this.Disabled || !!this.Context.getLoginInProgress();
+        const { authenticating } = AuthenticationService.state ?? {};
+
+        return !AuthenticationService.disabled && (authenticating || AuthenticationService.context.getLoginInProgress());
     },
 
     /**
@@ -264,7 +324,7 @@ export default {
      */
     logout()
     {
-        this.Disabled || this.Context.logout();
+        AuthenticationService.disabled || AuthenticationService.context.logout();
     },
 
     /**
@@ -272,7 +332,7 @@ export default {
      */
     clearCache()
     {
-        this.Disabled || this.Context.clearCache();
+        AuthenticationService.disabled || AuthenticationService.context.clearCache();
     },
 
     /**
@@ -282,10 +342,10 @@ export default {
      */
     getAuthority()
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
-        return this.Context.getAuthorityInstance();
+        return AuthenticationService.context.getAuthorityInstance();
     },
 
     /**
@@ -295,10 +355,10 @@ export default {
      */
     getAccount()
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
-        return this.Context.getAccount();
+        return AuthenticationService.context.getAccount();
     },
 
     /**
@@ -308,10 +368,10 @@ export default {
      */
     getId()
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
-        return this.Context.getAccount()?.accountIdentifier;
+        return AuthenticationService.context.getAccount()?.accountIdentifier;
     },
 
     /**
@@ -321,10 +381,10 @@ export default {
      */
     getUserName()
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
-        return this.Context.getAccount()?.userName;
+        return AuthenticationService.context.getAccount()?.userName;
     },
 
     /**
@@ -334,10 +394,10 @@ export default {
      */
     getClaims()
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
-        return this.Context.getAccount()?.idTokenClaims;
+        return AuthenticationService.context.getAccount()?.idTokenClaims;
     },
 
     /**
@@ -347,10 +407,10 @@ export default {
      */
     getRoles()
     {
-        if (this.Disabled)
+        if (AuthenticationService.disabled)
             return null;
 
-        const claims = this.Context.getAccount()?.idTokenClaims;
+        const { idTokenClaims: claims } = AuthenticationService.getAccount() ?? {};
 
         if (Object.prototype.hasOwnProperty.call(claims, 'roles'))
             return claims.roles;
@@ -358,3 +418,5 @@ export default {
         return null;
     }
 };
+
+export default AuthenticationService;
