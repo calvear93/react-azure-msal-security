@@ -46,7 +46,7 @@ Exposes multiples hooks for login, logout and secure components.
 
 ✅ Automatic and manual login hooks.
 
-✅ Logout,state and token acquisition hooks.
+✅ Logout, state and token acquisition hooks.
 
 ✅ Refresh token route handler.
 
@@ -324,10 +324,6 @@ export default () => {
 | `state.info`      | account info           |
 | `state.error`     | error object           |
 
-| Parameters   | Description                                     |
-| ------------ | ----------------------------------------------- |
-| `[disabled]` | (default: false) if info retrieving is disabled |
-
 ```javascript
 import { useAccountAvatar } from '@calvear/react-azure-msal-security';
 
@@ -356,8 +352,7 @@ export default () => {
 
 | Parameters   | Description                                                                                                               |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `[size]`     | (default: false) if avatar retrieving is disabled                                                                         |
-| `[disabled]` | (default: 648x648) avatar sizes. Values maybe 48x48, 64x64, 96x96, 120x120, 240x240, 360x360, 432x432, 504x504 or 648x648 |
+| `[size]` | (default: 648x648) avatar sizes. Values maybe 48x48, 64x64, 96x96, 120x120, 240x240, 360x360, 432x432, 504x504 or 648x648 |
 
 ## Linting 🧿
 
