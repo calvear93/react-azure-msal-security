@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.2] - 2021-02-18
+-   Changed minimum React version to 16.13.1.
+
 ## [2.0.1] - 2021-02-10
 -   Fixed blob handling for avatar in some scenarios.
 
