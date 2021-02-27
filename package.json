@@ -1,5 +1,5 @@
 {
-  "version": "2.0.2",
+  "version": "2.0.3",
   "name": "@calvear/react-azure-msal-security",
   "title": "React Azure MSAL Security",
   "description": "React library (MSAL wrapper) for Azure Active Directory authentication.",
@@ -35,24 +35,24 @@
     "msal": "^1.4.6"
   },
   "devDependencies": {
-    "@babel/cli": "^7.12.16",
-    "@babel/eslint-parser": "^7.12.16",
-    "@babel/preset-env": "^7.12.16",
+    "@babel/cli": "^7.13.0",
+    "@babel/eslint-parser": "^7.13.8",
+    "@babel/preset-env": "^7.13.8",
     "@babel/preset-react": "^7.12.13",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^12.7.1",
+    "@testing-library/user-event": "^12.7.3",
     "eslint": "^7.20.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.1.5",
-    "eslint-plugin-jsdoc": "^32.0.2",
+    "eslint-plugin-jsdoc": "^32.2.0",
     "eslint-plugin-radar": "^0.2.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "jest": "^26.6.3"
   },
   "scripts": {
-    "build": "npx babel src --out-dir dist --copy-files",
+    "build": "npx babel src --out-dir dist --copy-files --source-maps",
     "upload": "npm run build && npm login && npm publish --access public",
     "upload:beta": "npm run build && npm login && npm publish --access public --tag beta",
     "upload:alpha": "npm run build && npm login && npm publish --access public --tag alpha",

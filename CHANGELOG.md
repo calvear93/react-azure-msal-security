@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2021-02-27
+-   Enabled sourcemaps for compiled code.
+-   .eslintignore added for build/dist folders.
+
 ## [2.0.2] - 2021-02-18
 -   Changed minimum React version to 16.13.1.
 
