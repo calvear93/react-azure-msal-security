@@ -2,8 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.5] - 2021-04-02
+-   MSAL updated.
+
 ## [2.0.4] - 2021-03-27
--   updated dependencies.
+-   dependencies updated.
 
 ## [2.0.3] - 2021-02-27
 -   Enabled sourcemaps for compiled code.
