@@ -5,9 +5,7 @@
         "commonjs": true,
         "es2020": true,
         "jest": true,
-        "node": true,
-        "serviceworker": true,
-        "worker": true
+        "node": true
     },
     "extends": [
         "eslint:recommended",
@@ -180,7 +178,12 @@
         "no-throw-literal": "error",
         "no-trailing-spaces": "warn",
         "no-unneeded-ternary": "warn",
-        "no-unused-vars": "warn",
+        "no-unused-vars": [
+            "warn",
+            {
+                "varsIgnorePattern": "_"
+            }
+        ],
         "object-curly-spacing": [
             "warn",
             "always"
@@ -229,7 +232,7 @@
             "always"
         ],
         "react/display-name": "off",
-        "react/forbid-prop-types": "warn",
+        "react/forbid-prop-types": "off",
         "react/jsx-boolean-value": "warn",
         "react/jsx-child-element-spacing": "off",
         "react/jsx-closing-bracket-location": [
@@ -245,7 +248,7 @@
             "warn",
             "syntax"
         ],
-        "react/jsx-handler-names": "warn",
+        "react/jsx-handler-names": "off",
         "react/jsx-indent": [
             "warn",
             4,
