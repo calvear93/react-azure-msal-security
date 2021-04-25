@@ -5,7 +5,7 @@
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2021-02-09 22:21:38
+ * Last modified  : 2021-04-25 12:00:55
  */
 
 import * as Msal from 'msal';
@@ -176,20 +176,28 @@ const AuthenticationService = {
      */
     acquireToken({ scopes = types.DEFAULT_SCOPES, forceTokenRefresh } = {})
     {
-        return new Promise((resolve, reject) =>
+        return new Promise((resolve) =>
         {
             // tries to get cached token.
             if (!forceTokenRefresh)
             {
                 const cached = AuthenticationService.acquireTokenInCache(scopes);
 
-                if (cached && cached.accessToken)
+                if (cached && cached.accessToken && cached.idToken)
+                {
                     resolve(cached);
+                }
+                else
+                {
+                    AuthenticationService.acquireTokenSilent({ scopes, forceTokenRefresh: true })
+                        .then((account) => resolve(account));
+                }
             }
-
-            AuthenticationService.acquireTokenSilent({ scopes, forceTokenRefresh })
-                .then((account) => resolve(account))
-                .catch((err) => reject(err));
+            else
+            {
+                AuthenticationService.acquireTokenSilent({ scopes, forceTokenRefresh })
+                    .then((account) => resolve(account));
+            }
         })
             .catch((error) => AuthenticationService.Error = error);
     },

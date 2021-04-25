@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.5] - 2021-04-25
+-   improved token acquisition.
+-   dependencies updated.
+
 ## [2.0.5] - 2021-04-02
 -   MSAL updated.
 
@@ -9,35 +13,35 @@ All notable changes to this project will be documented in this file.
 -   dependencies updated.
 
 ## [2.0.3] - 2021-02-27
--   Enabled sourcemaps for compiled code.
+-   enabled sourcemaps for compiled code.
 -   .eslintignore added for build/dist folders.
 
 ## [2.0.2] - 2021-02-18
 -   Changed minimum React version to 16.13.1.
 
 ## [2.0.1] - 2021-02-10
--   Fixed blob handling for avatar in some scenarios.
+-   fixed blob handling for avatar in some scenarios.
 
 ## [2.0.0] - 2021-02-09
--   State handle reworked. Now, service has a centralized observer handling state changes.
--   Added useAuthenticationState that handles in real-time session changes.
--   Removed conditional authentication hooks. You can use useEffect for postLogin validations.
--   Simplified init function.
+-   state handle reworked. Now, service has a centralized observer handling state changes.
+-   added useAuthenticationState that handles in real-time session changes.
+-   removed conditional authentication hooks. You can use useEffect for postLogin validations.
+-   simplified init function.
 
 ## [1.0.4] - 2021-02-09
 -   useLogin authenticated from state fixed.
 
 ## [1.0.3] - 2021-02-08
--   Added useIsAuthenticated hook for simple check authentication state.
+-   added useIsAuthenticated hook for simple check authentication state.
 
 ## [1.0.2] - 2021-02-08
--   Added forceTokenRefresh param in useAcquireToken hook (forces to renew token from active directory).
+-   added forceTokenRefresh param in useAcquireToken hook (forces to renew token from active directory).
 
 ## [1.0.1] - 2021-02-07
--   Readme docs updated.
+-   readme docs updated.
 
 ## [1.0.0] - 2021-02-06
 -   MSAL authentication service.
 -   Microsoft Graph service.
--   Module initialization function from service.
--   Hooks for login, logout and conditional login.
+-   module initialization function from service.
+-   hooks for login, logout and conditional login.
