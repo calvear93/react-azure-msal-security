@@ -28,24 +28,24 @@
   },
   "peerDependencies": {
     "axios": "^0.21.1",
-    "react": ">=16.13.1",
-    "react-dom": ">=16.13.1"
+    "react": ">=17.0.2",
+    "react-dom": ">=17.0.2"
   },
   "dependencies": {
-    "msal": "^1.4.10"
+    "msal": "^1.4.11"
   },
   "devDependencies": {
-    "@babel/cli": "^7.13.16",
-    "@babel/eslint-parser": "^7.13.14",
-    "@babel/preset-env": "^7.13.15",
+    "@babel/cli": "^7.14.3",
+    "@babel/eslint-parser": "^7.14.3",
+    "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@testing-library/jest-dom": "^5.12.0",
-    "@testing-library/react": "^11.2.6",
-    "@testing-library/user-event": "^13.1.5",
-    "eslint": "^7.25.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.3.5",
-    "eslint-plugin-jsdoc": "^32.3.1",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^13.1.9",
+    "eslint": "^7.26.0",
+    "eslint-plugin-import": "^2.23.2",
+    "eslint-plugin-jest": "^24.3.6",
+    "eslint-plugin-jsdoc": "^34.8.2",
     "eslint-plugin-radar": "^0.2.1",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
