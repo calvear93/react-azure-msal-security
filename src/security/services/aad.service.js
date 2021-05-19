@@ -5,7 +5,7 @@
  * @author Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>
  *
  * Created at     : 2020-05-23 19:53:33
- * Last modified  : 2021-04-25 12:00:55
+ * Last modified  : 2021-05-19 17:51:37
  */
 
 import * as Msal from 'msal';
@@ -190,13 +190,15 @@ const AuthenticationService = {
                 else
                 {
                     AuthenticationService.acquireTokenSilent({ scopes, forceTokenRefresh: true })
-                        .then((account) => resolve(account));
+                        .then((account) => resolve(account))
+                        .catch(() => AuthenticationService.login());
                 }
             }
             else
             {
                 AuthenticationService.acquireTokenSilent({ scopes, forceTokenRefresh })
-                    .then((account) => resolve(account));
+                    .then((account) => resolve(account))
+                    .catch(() => AuthenticationService.login());
             }
         })
             .catch((error) => AuthenticationService.Error = error);

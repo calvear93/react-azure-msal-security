@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2021-05-19
+-   possible acquisition token fix
+
 ## [2.0.5] - 2021-04-25
 -   improved token acquisition.
 -   dependencies updated.
