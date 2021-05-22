@@ -1,5 +1,5 @@
 {
-  "version": "2.1.1",
+  "version": "2.1.2",
   "name": "@calvear/react-azure-msal-security",
   "title": "React Azure MSAL Security",
   "description": "React library (MSAL wrapper) for Azure Active Directory authentication.",
@@ -28,8 +28,8 @@
   },
   "peerDependencies": {
     "axios": "^0.21.1",
-    "react": ">=17.0.2",
-    "react-dom": ">=17.0.2"
+    "react": ">=16.13.1",
+    "react-dom": ">=16.13.1"
   },
   "dependencies": {
     "msal": "^1.4.11"
@@ -42,8 +42,8 @@
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^13.1.9",
-    "eslint": "^7.26.0",
-    "eslint-plugin-import": "^2.23.2",
+    "eslint": "^7.27.0",
+    "eslint-plugin-import": "^2.23.3",
     "eslint-plugin-jest": "^24.3.6",
     "eslint-plugin-jsdoc": "^34.8.2",
     "eslint-plugin-radar": "^0.2.1",
